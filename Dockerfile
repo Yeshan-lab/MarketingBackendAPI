@@ -1,13 +1,19 @@
-# Use the official .NET SDK to build
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+# Use the official .NET 8 runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
+EXPOSE 80
 
-COPY . ./
-RUN dotnet restore
-RUN dotnet publish -c Release -o out
+# Use the official .NET 8 SDK image
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY ["MyBackendApi.csproj", "./"]
+RUN dotnet restore "./MyBackendApi.csproj"
+COPY . .
+RUN dotnet build "MyBackendApi.csproj" -c Release -o /app/build
+RUN dotnet publish "MyBackendApi.csproj" -c Release -o /app/publish
 
-FROM mcr.microsoft.com/dotnet/aspnet:7.0
+# Final stage
+FROM base AS final
 WORKDIR /app
-COPY --from=build /app/out .
-
+COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "MyBackendApi.dll"]
