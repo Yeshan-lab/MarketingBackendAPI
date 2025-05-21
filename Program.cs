@@ -56,4 +56,6 @@ catch (Exception ex)
     Console.WriteLine($"❌ DB error: {ex.Message}");
 }
 
+// dummy update
+
 app.Run();
