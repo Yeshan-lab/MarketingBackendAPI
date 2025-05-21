@@ -3,58 +3,57 @@ using MyBackendApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Connection string
+// ✅ Database connection
 string connectionString = "server=centerbeam.proxy.rlwy.net;port=12170;database=railway;user=root;password=yZCrCqokQbzFZZqPIQLVpEMABwiwmPeC";
-
-// Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
 });
 
-// Add services
+// ✅ Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS
+// ✅ Enable CORS for any frontend
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
-        .AllowAnyMethod()
-        .AllowAnyHeader();
+        .AllowAnyHeader()
+        .AllowAnyMethod();
     });
 });
 
 var app = builder.Build();
 
-// ✅ Enable Swagger at root URL
+// ✅ Use CORS (before anything else)
+app.UseCors("AllowAll");
+
+// ✅ Enable Swagger on root
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyBackendApi V1");
-    c.RoutePrefix = ""; // root path (e.g., https://yoururl/)
+    c.RoutePrefix = string.Empty; // this makes Swagger UI appear at "/"
 });
 
-// Enable CORS
-app.UseCors("AllowAll");
-
-
+app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
-// Optional DB test
+// ✅ Optional DB connection test
 try
 {
-    var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.OpenConnection();
-    Console.WriteLine("✅ Successfully connected to MySQL DB");
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.OpenConnection();
+    Console.WriteLine("✅ Connected to MySQL");
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"❌ DB connection failed: {ex.Message}");
+    Console.WriteLine($"❌ DB error: {ex.Message}");
 }
 
 app.Run();
