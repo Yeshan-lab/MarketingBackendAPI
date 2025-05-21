@@ -1,52 +1,55 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using MyBackendApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Set your MySQL connection string (using public URL from Railway)
+// Connection string to Railway MySQL DB
 string connectionString = "server=centerbeam.proxy.rlwy.net;port=12170;database=railway;user=root;password=yZCrCqokQbzFZZqPIQLVpEMABwiwmPeC";
 
-// Log the connection string setup
+// Add DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-    Console.WriteLine("Attempting to connect to MySQL Database...");
 });
 
-// Add services to the container (add other services as needed)
+// Add services
 builder.Services.AddControllers();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Build the application
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger(); // Enable Swagger UI
-    app.UseSwaggerUI(); // To display Swagger UI
-}
+// Use Swagger even in Production
+app.UseSwagger();
+app.UseSwaggerUI();
 
-app.UseHttpsRedirection();  // Comment this line out if not using HTTPS during dev
+// Use CORS
+app.UseCors("AllowAll");
+
+app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
 try
 {
-    // Optional: You can verify the DB connection at startup here
     var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.OpenConnection();
-    Console.WriteLine("Successfully connected to the database!");
+    Console.WriteLine("✅ Successfully connected to MySQL DB");
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Error connecting to database: {ex.Message}");
+    Console.WriteLine($"❌ DB connection failed: {ex.Message}");
 }
 
-// Run the application
 app.Run();
