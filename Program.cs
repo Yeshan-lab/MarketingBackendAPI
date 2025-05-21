@@ -3,7 +3,7 @@ using MyBackendApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Connection string to Railway MySQL DB
+// Connection string
 string connectionString = "server=centerbeam.proxy.rlwy.net;port=12170;database=railway;user=root;password=yZCrCqokQbzFZZqPIQLVpEMABwiwmPeC";
 
 // Add DbContext
@@ -17,30 +17,36 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Add CORS
+// CORS for browser access
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+              .AllowAnyMethod()
+              .AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
 
-// Use Swagger even in Production
+// ✅ Enable Swagger in all environments (important for Render)
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyBackendApi V1");
+    c.RoutePrefix = string.Empty; // Makes Swagger available at root URL
+});
 
-// Use CORS
+// Enable CORS
 app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
+
 app.MapControllers();
 
+// Optional DB test
 try
 {
     var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
