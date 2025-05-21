@@ -276,3 +276,4 @@ C:\Users\YESHAN\source\repos\MyBackendApi\MyBackendApi\bin\Debug\net8.0\ru\Micro
 C:\Users\YESHAN\source\repos\MyBackendApi\MyBackendApi\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Scripting.resources.dll
 C:\Users\YESHAN\source\repos\MyBackendApi\MyBackendApi\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Scripting.resources.dll
 C:\Users\YESHAN\source\repos\MyBackendApi\MyBackendApi\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Scripting.resources.dll
+C:\Users\YESHAN\source\repos\MyBackendApi\MyBackendApi\obj\Debug\net8.0\MyBackendApi.sourcelink.json

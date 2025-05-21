@@ -1,52 +1,61 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using MyBackendApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Set your MySQL connection string (using public URL from Railway)
+// ✅ Database connection
 string connectionString = "server=centerbeam.proxy.rlwy.net;port=12170;database=railway;user=root;password=yZCrCqokQbzFZZqPIQLVpEMABwiwmPeC";
-
-// Log the connection string setup
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-    Console.WriteLine("Attempting to connect to MySQL Database...");
 });
 
-// Add services to the container (add other services as needed)
+// ✅ Add services
 builder.Services.AddControllers();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Build the application
+// ✅ Enable CORS for any frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger(); // Enable Swagger UI
-    app.UseSwaggerUI(); // To display Swagger UI
-}
+// ✅ Use CORS (before anything else)
+app.UseCors("AllowAll");
 
-app.UseHttpsRedirection();  // Comment this line out if not using HTTPS during dev
+// ✅ Enable Swagger on root
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyBackendApi V1");
+    c.RoutePrefix = string.Empty; // this makes Swagger UI appear at "/"
+});
+
+app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
+// ✅ Optional DB connection test
 try
 {
-    // Optional: You can verify the DB connection at startup here
-    var dbContext = app.Services.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.OpenConnection();
-    Console.WriteLine("Successfully connected to the database!");
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.OpenConnection();
+    Console.WriteLine("✅ Connected to MySQL");
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Error connecting to database: {ex.Message}");
+    Console.WriteLine($"❌ DB error: {ex.Message}");
 }
 
-// Run the application
+// dummy update
+
 app.Run();

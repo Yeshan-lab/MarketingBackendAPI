@@ -16,9 +16,25 @@ namespace MyBackendApi.Controllers
             _context = context;
         }
 
+        // ✅ Login (Authenticate)
+        [HttpPost("authenticate")]
+        public async Task<IActionResult> Authenticate([FromBody] LoginRequest request)
+        {
+            var user = await _context.UserLogins
+                .FirstOrDefaultAsync(u => u.Username == request.Username && u.Password == request.Password);
+
+            if (user == null)
+            {
+                return Unauthorized(new { message = "Invalid username or password" });
+            }
+
+            // You can later return a JWT here
+            return Ok(user);
+        }
+
         // Create new login (POST)
         [HttpPost]
-        public async Task<ActionResult<UserLogin>> PostUserLogin(UserLogin userLogin)
+        public async Task<ActionResult<UserLogin>> PostUserLogin([FromBody] UserLogin userLogin)
         {
             _context.UserLogins.Add(userLogin);
             await _context.SaveChangesAsync();
@@ -49,7 +65,7 @@ namespace MyBackendApi.Controllers
 
         // Update login (PUT)
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserLogin(int id, UserLogin userLogin)
+        public async Task<IActionResult> PutUserLogin(int id, [FromBody] UserLogin userLogin)
         {
             if (id != userLogin.Id)
             {
@@ -96,6 +112,13 @@ namespace MyBackendApi.Controllers
         private bool UserLoginExists(int id)
         {
             return _context.UserLogins.Any(e => e.Id == id);
+        }
+
+        // ✅ Class for login request
+        public class LoginRequest
+        {
+            public string Username { get; set; }
+            public string Password { get; set; }
         }
     }
 }
