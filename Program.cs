@@ -17,25 +17,25 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// CORS for browser access
+// CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
         policy.AllowAnyOrigin()
-              .AllowAnyMethod()
-              .AllowAnyHeader();
+        .AllowAnyMethod()
+        .AllowAnyHeader();
     });
 });
 
 var app = builder.Build();
 
-// ✅ Enable Swagger in all environments (important for Render)
+// ✅ Enable Swagger at root URL
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyBackendApi V1");
-    c.RoutePrefix = string.Empty; // Makes Swagger available at root URL
+    c.RoutePrefix = ""; // root path (e.g., https://yoururl/)
 });
 
 // Enable CORS
@@ -43,7 +43,6 @@ app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
-
 app.MapControllers();
 
 // Optional DB test
