@@ -34,12 +34,22 @@ namespace MyBackendApi.Controllers
 
         // Create new login (POST)
         [HttpPost]
-        public async Task<ActionResult<UserLogin>> PostUserLogin([FromBody] UserLogin userLogin)
+        public async Task<ActionResult<UserLogin>> PostUserLogin(UserLogin userLogin)
         {
+            // Check if username already exists
+            var existingUser = await _context.UserLogins
+            .FirstOrDefaultAsync(u => u.Username == userLogin.Username);
+
+            if (existingUser != null)
+            {
+                return Conflict(new { message = "Username already exists." });
+            }
+
             _context.UserLogins.Add(userLogin);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetUserLogin", new { id = userLogin.Id }, userLogin);
+
         }
 
         // Get all logins (GET)
@@ -120,5 +130,8 @@ namespace MyBackendApi.Controllers
             public string Username { get; set; }
             public string Password { get; set; }
         }
+
+
+
     }
 }
