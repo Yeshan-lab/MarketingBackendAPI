@@ -62,5 +62,15 @@ namespace MyBackendApi.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
+
+        [HttpGet("by-user/{username}")]
+        public async Task<ActionResult<IEnumerable<ApprovedClearance>>> GetByUser(string username)
+        {
+            var list = await _context.ApprovedClearances
+            .Where(c => c.Username == username)
+            .ToListAsync();
+            return list;
+
+        }
+        }
     }
-}

@@ -16,12 +16,23 @@ namespace MyBackendApi.Controllers
             _context = context;
         }
 
+        // ✅ Get all
         [HttpGet]
         public async Task<ActionResult<IEnumerable<QuotationClearance>>> GetAll()
         {
             return await _context.QuotationClearances.ToListAsync();
         }
 
+        // ✅ Get all by username
+        [HttpGet("byuser/{username}")]
+        public async Task<ActionResult<IEnumerable<QuotationClearance>>> GetByUsername(string username)
+        {
+            return await _context.QuotationClearances
+                .Where(c => c.Username == username)
+                .ToListAsync();
+        }
+
+        // ✅ Get by ID
         [HttpGet("{id}")]
         public async Task<ActionResult<QuotationClearance>> Get(int id)
         {
@@ -32,6 +43,7 @@ namespace MyBackendApi.Controllers
             return clearance;
         }
 
+        // ✅ Create
         [HttpPost]
         public async Task<ActionResult<QuotationClearance>> Create(QuotationClearance clearance)
         {
@@ -40,6 +52,7 @@ namespace MyBackendApi.Controllers
             return CreatedAtAction(nameof(Get), new { id = clearance.Id }, clearance);
         }
 
+        // ✅ Update
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, QuotationClearance clearance)
         {
@@ -51,6 +64,7 @@ namespace MyBackendApi.Controllers
             return NoContent();
         }
 
+        // ✅ Delete
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

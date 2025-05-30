@@ -28,17 +28,21 @@ namespace MyBackendApi.Controllers
                 return Unauthorized(new { message = "Invalid username or password" });
             }
 
-            // You can later return a JWT here
-            return Ok(user);
+            // Return user info including role
+            return Ok(new
+            {
+                user.Username,
+                user.Role
+            });
         }
 
-        // Create new login (POST)
+        // ✅ Create new login (POST)
         [HttpPost]
         public async Task<ActionResult<UserLogin>> PostUserLogin(UserLogin userLogin)
         {
             // Check if username already exists
             var existingUser = await _context.UserLogins
-            .FirstOrDefaultAsync(u => u.Username == userLogin.Username);
+                .FirstOrDefaultAsync(u => u.Username == userLogin.Username);
 
             if (existingUser != null)
             {
@@ -48,22 +52,22 @@ namespace MyBackendApi.Controllers
             _context.UserLogins.Add(userLogin);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetUserLogin", new { id = userLogin.Id }, userLogin);
-
+            return CreatedAtAction("GetUserLogin", new { username = userLogin.Username }, userLogin);
         }
 
-        // Get all logins (GET)
+        // ✅ Get all logins (GET)
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserLogin>>> GetUserLogins()
         {
             return await _context.UserLogins.ToListAsync();
         }
 
-        // Get a specific login by ID (GET)
-        [HttpGet("{id}")]
-        public async Task<ActionResult<UserLogin>> GetUserLogin(int id)
+        // ✅ Get a specific login by username (GET)
+        [HttpGet("{username}")]
+        public async Task<ActionResult<UserLogin>> GetUserLogin(string username)
         {
-            var userLogin = await _context.UserLogins.FindAsync(id);
+            var userLogin = await _context.UserLogins
+                .FirstOrDefaultAsync(u => u.Username == username);
 
             if (userLogin == null)
             {
@@ -73,11 +77,11 @@ namespace MyBackendApi.Controllers
             return userLogin;
         }
 
-        // Update login (PUT)
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutUserLogin(int id, [FromBody] UserLogin userLogin)
+        // ✅ Update login (PUT)
+        [HttpPut("{username}")]
+        public async Task<IActionResult> PutUserLogin(string username, [FromBody] UserLogin userLogin)
         {
-            if (id != userLogin.Id)
+            if (username != userLogin.Username)
             {
                 return BadRequest();
             }
@@ -90,7 +94,7 @@ namespace MyBackendApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserLoginExists(id))
+                if (!UserLoginExists(username))
                 {
                     return NotFound();
                 }
@@ -103,11 +107,12 @@ namespace MyBackendApi.Controllers
             return NoContent();
         }
 
-        // Delete login (DELETE)
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserLogin(int id)
+        // ✅ Delete login (DELETE)
+        [HttpDelete("{username}")]
+        public async Task<IActionResult> DeleteUserLogin(string username)
         {
-            var userLogin = await _context.UserLogins.FindAsync(id);
+            var userLogin = await _context.UserLogins
+                .FirstOrDefaultAsync(u => u.Username == username);
             if (userLogin == null)
             {
                 return NotFound();
@@ -119,9 +124,9 @@ namespace MyBackendApi.Controllers
             return NoContent();
         }
 
-        private bool UserLoginExists(int id)
+        private bool UserLoginExists(string username)
         {
-            return _context.UserLogins.Any(e => e.Id == id);
+            return _context.UserLogins.Any(e => e.Username == username);
         }
 
         // ✅ Class for login request
@@ -130,8 +135,5 @@ namespace MyBackendApi.Controllers
             public string Username { get; set; }
             public string Password { get; set; }
         }
-
-
-
     }
 }

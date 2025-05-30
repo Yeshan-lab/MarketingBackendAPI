@@ -16,12 +16,23 @@ namespace MyBackendApi.Controllers
             _context = context;
         }
 
+        // ✅ Get all negotiations (admin only)
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Negotiation>>> GetAll()
         {
             return await _context.BusinessNegotiations.ToListAsync();
         }
 
+        // ✅ Get all negotiations by username (officer or admin)
+        [HttpGet("by-user/{username}")]
+        public async Task<ActionResult<IEnumerable<Negotiation>>> GetByUsername(string username)
+        {
+            return await _context.BusinessNegotiations
+                .Where(n => n.Username == username)
+                .ToListAsync();
+        }
+
+        // ✅ Get single record
         [HttpGet("{id}")]
         public async Task<ActionResult<Negotiation>> Get(int id)
         {
@@ -32,6 +43,7 @@ namespace MyBackendApi.Controllers
             return negotiation;
         }
 
+        // ✅ Create new negotiation (officer + admin)
         [HttpPost]
         public async Task<ActionResult<Negotiation>> Create(Negotiation negotiation)
         {
@@ -40,6 +52,7 @@ namespace MyBackendApi.Controllers
             return CreatedAtAction(nameof(Get), new { id = negotiation.Id }, negotiation);
         }
 
+        // ✅ Update (admin only)
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, Negotiation negotiation)
         {
@@ -51,6 +64,7 @@ namespace MyBackendApi.Controllers
             return NoContent();
         }
 
+        // ✅ Delete (admin only)
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

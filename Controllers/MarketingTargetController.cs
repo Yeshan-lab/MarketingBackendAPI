@@ -16,18 +16,18 @@ namespace MyBackendApi.Controllers
             _context = context;
         }
 
-        // GET: api/MarketingTarget
+        // ✅ Get all targets
         [HttpGet]
         public async Task<ActionResult<IEnumerable<MarketingTarget>>> GetAllTargets()
         {
             return await _context.MarketingTargets.ToListAsync();
         }
 
-        // GET: api/MarketingTarget/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<MarketingTarget>> GetTargetById(int id)
+        // ✅ Get target by username and month
+        [HttpGet("{username}/{month}/{year}")]
+        public async Task<ActionResult<MarketingTarget>> GetTargetByUserAndMonth(string username, int month, int year)
         {
-            var target = await _context.MarketingTargets.FindAsync(id);
+            var target = await _context.MarketingTargets.FirstOrDefaultAsync(t => t.Username == username && t.Month == month && t.Year == year);
 
             if (target == null)
             {
@@ -37,17 +37,24 @@ namespace MyBackendApi.Controllers
             return target;
         }
 
-        // POST: api/MarketingTarget
+        // ✅ Create new target
         [HttpPost]
         public async Task<ActionResult<MarketingTarget>> CreateTarget(MarketingTarget target)
         {
+            // Prevent duplicate for same month/year/user
+            bool exists = await _context.MarketingTargets.AnyAsync(t => t.Username == target.Username && t.Month == target.Month && t.Year == target.Year);
+            if (exists)
+            {
+                return Conflict(new { message = "Target already submitted for this month." });
+            }
+
             _context.MarketingTargets.Add(target);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetTargetById), new { id = target.Id }, target);
+            return CreatedAtAction(nameof(GetTargetByUserAndMonth), new { username = target.Username, month = target.Month, year = target.Year }, target);
         }
 
-        // PUT: api/MarketingTarget/5
+        // ✅ Update target
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateTarget(int id, MarketingTarget target)
         {
@@ -64,7 +71,7 @@ namespace MyBackendApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.MarketingTargets.Any(e => e.Id == id))
+                if (!TargetExists(id))
                 {
                     return NotFound();
                 }
@@ -74,7 +81,7 @@ namespace MyBackendApi.Controllers
             return NoContent();
         }
 
-        // DELETE: api/MarketingTarget/5
+        // ✅ Delete target
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTarget(int id)
         {
@@ -88,6 +95,11 @@ namespace MyBackendApi.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private bool TargetExists(int id)
+        {
+            return _context.MarketingTargets.Any(t => t.Id == id);
         }
     }
 }
