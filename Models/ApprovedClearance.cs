@@ -3,7 +3,7 @@
     public class ApprovedClearance
     {
         public int Id { get; set; }
-        public required string Username { get; set; } // ✅ This associates the record with the user
+        public required string Username { get; set; } = string.Empty; // ✅ This associates the record with the user
 
         public required string CustomerName { get; set; }
 
