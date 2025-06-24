@@ -47,6 +47,7 @@ namespace MyBackendApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Negotiation>> Create(Negotiation negotiation)
         {
+            negotiation.Date = DateTime.UtcNow;
             _context.BusinessNegotiations.Add(negotiation);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = negotiation.Id }, negotiation);

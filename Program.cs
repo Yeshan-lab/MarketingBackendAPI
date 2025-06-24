@@ -11,10 +11,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(connectionString);
 });
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", false);
+AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+AppContext.SetSwitch("Npgsql.DisableDateTimeKindHandling", false);
+
+
 // ✅ Add services
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Title = "MyBackendApi", Version = "v1" });
+});
 
 // ✅ Enable CORS for any frontend
 builder.Services.AddCors(options =>
@@ -33,14 +41,21 @@ var app = builder.Build();
 app.UseCors("AllowAll");
 
 // ✅ Enable Swagger on root
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyBackendApi V1");
-    c.RoutePrefix = string.Empty;
-});
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "MyBackendApi V1");
+        c.RoutePrefix = string.Empty;
+    });
+}
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
+
 app.UseAuthorization();
 app.MapControllers();
 
