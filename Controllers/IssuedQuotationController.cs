@@ -62,6 +62,8 @@ namespace MyBackendApi.Controllers
             if (id != quotation.Id)
                 return BadRequest();
 
+            quotation.Date = quotation.Date.ToUniversalTime();
+
             _context.Entry(quotation).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return NoContent();

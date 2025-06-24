@@ -60,6 +60,8 @@ namespace MyBackendApi.Controllers
             if (id != negotiation.Id)
                 return BadRequest();
 
+            negotiation.Date = negotiation.Date.ToUniversalTime();
+
             _context.Entry(negotiation).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return NoContent();

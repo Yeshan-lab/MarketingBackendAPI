@@ -47,6 +47,8 @@ namespace MyBackendApi.Controllers
             if (id != clearance.Id)
                 return BadRequest();
 
+            clearance.Date = clearance.Date.ToUniversalTime();
+
             _context.Entry(clearance).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return NoContent();
