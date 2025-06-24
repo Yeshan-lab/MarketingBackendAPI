@@ -35,6 +35,7 @@ namespace MyBackendApi.Controllers
         [HttpPost]
         public async Task<ActionResult<ApprovedClearance>> Create(ApprovedClearance clearance)
         {
+            clearance.Date = DateTime.UtcNow;
             _context.ApprovedClearances.Add(clearance);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = clearance.Id }, clearance);

@@ -49,6 +49,7 @@ namespace MyBackendApi.Controllers
         [HttpPost]
         public async Task<ActionResult<IssuedQuotations>> Create(IssuedQuotations quotation)
         {
+            quotation.Date = DateTime.UtcNow;
             _context.IssuedQotations.Add(quotation);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = quotation.Id }, quotation);

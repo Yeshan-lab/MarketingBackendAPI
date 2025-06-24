@@ -47,6 +47,7 @@ namespace MyBackendApi.Controllers
         [HttpPost]
         public async Task<ActionResult<QuotationClearance>> Create(QuotationClearance clearance)
         {
+            clearance.Date = DateTime.UtcNow;
             _context.QuotationClearances.Add(clearance);
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = clearance.Id }, clearance);
