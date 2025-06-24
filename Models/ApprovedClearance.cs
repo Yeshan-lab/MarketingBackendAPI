@@ -1,4 +1,6 @@
-﻿namespace MyBackendApi.Models
+﻿using System.Text.Json.Serialization;
+
+namespace MyBackendApi.Models
 {
     public class ApprovedClearance
     {
@@ -10,7 +12,7 @@
         public decimal Value { get; set; }
 
         public decimal CapacityKW { get; set; }
-
+        [JsonPropertyName("whatsAppNumber")]
         public required string WhatsAppNumber { get; set; }
 
         public DateTime Date { get; set; }
