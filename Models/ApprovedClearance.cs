@@ -15,7 +15,7 @@ namespace MyBackendApi.Models
         [JsonPropertyName("whatsAppNumber")]
         public required string WhatsAppNumber { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime Date { get; set; } = DateTime.UtcNow;
     }
 
 }

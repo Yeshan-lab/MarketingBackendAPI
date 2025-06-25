@@ -11,6 +11,6 @@ namespace MyBackendApi.Models
         public double CapacityKW { get; set; }
         [JsonPropertyName("whatsAppNumber")]
         public required string WhatsAppNumber { get; set; }
-        public DateTime Date { get; set; } // Optionally, add date of negotiation
+        public DateTime Date { get; set; } = DateTime.UtcNow;// Optionally, add date of negotiation
     }
 }

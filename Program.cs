@@ -12,7 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", false);
-AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", false);
 AppContext.SetSwitch("Npgsql.DisableDateTimeKindHandling", false);
 
 
